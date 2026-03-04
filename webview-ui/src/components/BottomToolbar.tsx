@@ -67,7 +67,7 @@ export function BottomToolbar({
         Layout
       </button>
       <button
-        onClick={() => { window.location.href = '/config' }}
+        onClick={() => { window.location.href = './config' }}
         onMouseEnter={() => setHovered('config')}
         onMouseLeave={() => setHovered(null)}
         style={{
