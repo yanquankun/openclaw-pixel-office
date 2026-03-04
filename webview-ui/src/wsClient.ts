@@ -12,7 +12,9 @@ export function connectWebSocket(): void {
   if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) return
 
   const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:'
-  const wsUrl = `${protocol}//${location.host}/ws`
+  // Support being hosted under a subpath (e.g. /opc-pixel/)
+  const basePath = location.pathname.replace(/\/[^/]*$/, '/').replace(/\/config\/?$/, '/').replace(/\/index\.html$/, '/')
+  const wsUrl = `${protocol}//${location.host}${basePath}ws`
 
   console.log(`[WS] Connecting to ${wsUrl}`)
   ws = new WebSocket(wsUrl)

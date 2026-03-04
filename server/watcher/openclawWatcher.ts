@@ -36,19 +36,19 @@ const ROLE_TO_AGENT_ID: Record<string, number> = {
 /** OpenClaw 工具名到像素小人动画的映射 */
 const TOOL_NAME_MAP: Record<string, string> = {
   // OpenClaw 工具名 → 像素小人工具名
-  'file_read': 'Read',
-  'file_write': 'Write',
-  'file_edit': 'Edit',
-  'shell': 'Bash',
-  'search': 'Grep',
-  'browse': 'WebFetch',
-  'think': 'Read',
-  'plan': 'Read',
-  'code': 'Write',
-  'test': 'Bash',
-  'deploy': 'Bash',
-  'design': 'Edit',
-  'analyze': 'Grep',
+  read: 'Read',
+  write: 'Write',
+  edit: 'Edit',
+  exec: 'Bash',
+  web_search: 'WebFetch',
+  web_fetch: 'WebFetch',
+  browser: 'WebFetch',
+  message: 'Task',
+  sessions_send: 'Task',
+  sessions_spawn: 'Task',
+  image: 'Read',
+  pdf: 'Read',
+  nodes: 'Bash',
 }
 
 export class OpenClawWatcher implements Watcher {
@@ -57,6 +57,7 @@ export class OpenClawWatcher implements Watcher {
   private pollTimer: ReturnType<typeof setInterval> | null = null
   private callback: ((event: AgentEvent) => void) | null = null
   private fileOffsets = new Map<string, number>()
+  private allowedAgentIds: Set<number> | null = null
 
   constructor(sessionDir?: string) {
     // 默认路径，根据实际 OpenClaw 部署调整
@@ -67,9 +68,16 @@ export class OpenClawWatcher implements Watcher {
     )
   }
 
-  start(callback: (event: AgentEvent) => void): void {
+  private idleTimers = new Map<number, ReturnType<typeof setTimeout>>()
+
+  start(callback: (event: AgentEvent) => void, agentIds?: number[]): void {
     this.callback = callback
     console.log(`[OpenClawWatcher] 开始监听: ${this.sessionDir}`)
+
+    // Optional: limit watching to specific agent IDs
+    if (Array.isArray(agentIds) && agentIds.length > 0) {
+      this.allowedAgentIds = new Set(agentIds)
+    }
 
     if (!fs.existsSync(this.sessionDir)) {
       console.warn(`[OpenClawWatcher] 目录不存在: ${this.sessionDir}`)
@@ -89,6 +97,12 @@ export class OpenClawWatcher implements Watcher {
     this.watchers = []
     if (this.pollTimer) clearInterval(this.pollTimer)
     this.pollTimer = null
+
+    for (const t of this.idleTimers.values()) {
+      clearTimeout(t)
+    }
+    this.idleTimers.clear()
+
     this.callback = null
     console.log('[OpenClawWatcher] 停止监听')
   }
@@ -101,6 +115,7 @@ export class OpenClawWatcher implements Watcher {
         const roleName = entry.name.toLowerCase()
         const agentId = ROLE_TO_AGENT_ID[roleName]
         if (agentId === undefined) continue
+        if (this.allowedAgentIds && !this.allowedAgentIds.has(agentId)) continue
 
         const sessionsDir = path.join(this.sessionDir, entry.name, 'sessions')
         if (!fs.existsSync(sessionsDir)) continue
@@ -167,23 +182,44 @@ export class OpenClawWatcher implements Watcher {
   ): void {
     if (!this.callback) return
 
-    // TODO: 根据实际 OpenClaw JSONL 格式调整解析逻辑
-    // 以下是基于 Claude Code JSONL 格式的示例
+    // OpenClaw JSONL（我们当前版本）：
+    // record.type === 'message'
+    // record.message.content: Array<{type:'text'|'thinking'|'toolCall', name?:string, arguments?:object}>
 
-    if (record.type === 'assistant') {
-      const content = record.message?.content
-      if (Array.isArray(content)) {
-        for (const block of content) {
-          const b = block as { type?: string; name?: string }
-          if (b.type === 'tool_use') {
-            const toolName = TOOL_NAME_MAP[b.name ?? ''] ?? 'Read'
-            this.callback({ agentId, type: 'active', toolName })
-          }
-        }
+    if (record.type !== 'message') return
+
+    const content = record.message?.content
+    if (!Array.isArray(content)) return
+
+    // Extract first toolCall in this record
+    for (const block of content) {
+      const b = block as { type?: string; name?: string }
+      if (b && b.type === 'toolCall') {
+        const raw = (b.name ?? '').trim()
+        const toolName = TOOL_NAME_MAP[raw] ?? (
+          raw === 'exec' ? 'Bash'
+          : raw === 'read' ? 'Read'
+          : raw === 'edit' ? 'Edit'
+          : raw === 'write' ? 'Write'
+          : raw === 'web_search' ? 'WebFetch'
+          : raw === 'web_fetch' ? 'WebFetch'
+          : raw === 'browser' ? 'WebFetch'
+          : raw === 'message' ? 'Task'
+          : 'Read'
+        )
+
+        this.callback({ agentId, type: 'active', toolName })
+
+        // Debounced idle: mark idle if no further toolCall within TTL
+        const prev = this.idleTimers.get(agentId)
+        if (prev) clearTimeout(prev)
+        const t = setTimeout(() => {
+          if (this.callback) this.callback({ agentId, type: 'idle' })
+        }, 22000)
+        this.idleTimers.set(agentId, t)
+
+        break
       }
-    } else if (record.type === 'system') {
-      // turn_duration 表示一轮结束
-      this.callback({ agentId, type: 'idle' })
     }
   }
 }

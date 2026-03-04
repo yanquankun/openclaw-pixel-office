@@ -9,10 +9,12 @@ import express from 'express'
 import { createServer } from 'node:http'
 import { SERVER_PORT, ASSETS_ROOT } from './config.js'
 import type { AppConfig } from './config.js'
+import type { AgentEvent } from './watcher/types.js'
 import { loadAllAssets } from './assetLoader.js'
 import { AgentStateManager } from './agentStateManager.js'
 import { createWsServer } from './wsServer.js'
 import { MockWatcher } from './watcher/mockWatcher.js'
+import { OpenClawWatcher } from './watcher/openclawWatcher.js'
 import { readConfig, writeConfig } from './configStore.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -69,7 +71,9 @@ app.post('/api/config', (req, res) => {
 
   // 重建运行时状态
   agentManager.reinitialize(config.agents)
-  watcher.restart(config.agents.map(a => a.id))
+  // Restart watcher with new agent list
+  watcher.stop()
+  watcher.start(onAgentEvent, config.agents.map(a => a.id))
 
   console.log(`[Server] Config updated: ${config.agents.length} agents`)
   res.json({ ok: true })
@@ -89,16 +93,21 @@ app.get('/{*path}', (_req, res) => {
 
 createWsServer(httpServer, assets, agentManager)
 
-// ── Watcher (模拟) ───────────────────────────────────────────
+// ── Watcher (OpenClaw / Mock) ───────────────────────────────
 
-const watcher = new MockWatcher()
-watcher.start((event) => {
+const watcher = appConfig.openclaw?.enabled
+  ? new OpenClawWatcher(appConfig.openclaw.sessionDir)
+  : new MockWatcher()
+
+const onAgentEvent = (event: AgentEvent) => {
   if (event.type === 'active') {
     agentManager.setActive(event.agentId, event.toolName ?? 'Read')
   } else {
     agentManager.setIdle(event.agentId)
   }
-}, appConfig.agents.map(a => a.id))
+}
+
+watcher.start(onAgentEvent, appConfig.agents.map(a => a.id))
 
 // ── 启动 ─────────────────────────────────────────────────────
 

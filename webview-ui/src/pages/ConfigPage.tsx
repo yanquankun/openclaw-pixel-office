@@ -160,7 +160,8 @@ export function ConfigPage() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    fetch('/api/config')
+    const base = new URL(window.location.pathname.endsWith('/') ? window.location.pathname : (window.location.pathname + '/'), window.location.origin)
+    fetch(new URL('api/config', base).toString())
       .then(r => r.json())
       .then(setConfig)
       .catch(() => setError('无法加载配置'))
@@ -179,7 +180,8 @@ export function ConfigPage() {
     }
     setSaving(true)
     try {
-      const res = await fetch('/api/config', {
+      const base = new URL(window.location.pathname.endsWith('/') ? window.location.pathname : (window.location.pathname + '/'), window.location.origin)
+      const res = await fetch(new URL('api/config', base).toString(), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(config),
@@ -384,7 +386,8 @@ export function ConfigPage() {
           <button
             style={btnStyle}
             onClick={() => {
-              fetch('/api/config').then(r => r.json()).then(setConfig)
+              const base = new URL(window.location.pathname.endsWith('/') ? window.location.pathname : (window.location.pathname + '/'), window.location.origin)
+              fetch(new URL('api/config', base).toString()).then(r => r.json()).then(setConfig)
               showToast('已重新加载')
             }}
           >
