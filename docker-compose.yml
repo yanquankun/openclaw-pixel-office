@@ -1,0 +1,13 @@
+services:
+  pixel-agent:
+    build: .
+    ports:
+      - "3210:3210"
+    volumes:
+      - pixel-data:/root/.pixel-agents
+    restart: unless-stopped
+    environment:
+      - PORT=3210
+
+volumes:
+  pixel-data:

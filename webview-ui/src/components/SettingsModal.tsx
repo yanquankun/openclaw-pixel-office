@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { vscode } from '../vscodeApi.js'
 import { isSoundEnabled, setSoundEnabled } from '../notificationSound.js'
 
 interface SettingsModalProps {
@@ -32,7 +31,7 @@ export function SettingsModal({ isOpen, onClose, isDebugMode, onToggleDebugMode 
 
   return (
     <>
-      {/* Dark backdrop — click to close */}
+      {/* Dark backdrop */}
       <div
         onClick={onClose}
         style={{
@@ -61,7 +60,7 @@ export function SettingsModal({ isOpen, onClose, isDebugMode, onToggleDebugMode 
           minWidth: 200,
         }}
       >
-        {/* Header with title and X button */}
+        {/* Header */}
         <div
           style={{
             display: 'flex',
@@ -91,55 +90,12 @@ export function SettingsModal({ isOpen, onClose, isDebugMode, onToggleDebugMode 
             X
           </button>
         </div>
-        {/* Menu items */}
-        <button
-          onClick={() => {
-            vscode.postMessage({ type: 'openSessionsFolder' })
-            onClose()
-          }}
-          onMouseEnter={() => setHovered('sessions')}
-          onMouseLeave={() => setHovered(null)}
-          style={{
-            ...menuItemBase,
-            background: hovered === 'sessions' ? 'rgba(255, 255, 255, 0.08)' : 'transparent',
-          }}
-        >
-          Open Sessions Folder
-        </button>
-        <button
-          onClick={() => {
-            vscode.postMessage({ type: 'exportLayout' })
-            onClose()
-          }}
-          onMouseEnter={() => setHovered('export')}
-          onMouseLeave={() => setHovered(null)}
-          style={{
-            ...menuItemBase,
-            background: hovered === 'export' ? 'rgba(255, 255, 255, 0.08)' : 'transparent',
-          }}
-        >
-          Export Layout
-        </button>
-        <button
-          onClick={() => {
-            vscode.postMessage({ type: 'importLayout' })
-            onClose()
-          }}
-          onMouseEnter={() => setHovered('import')}
-          onMouseLeave={() => setHovered(null)}
-          style={{
-            ...menuItemBase,
-            background: hovered === 'import' ? 'rgba(255, 255, 255, 0.08)' : 'transparent',
-          }}
-        >
-          Import Layout
-        </button>
+        {/* Sound toggle */}
         <button
           onClick={() => {
             const newVal = !isSoundEnabled()
             setSoundEnabled(newVal)
             setSoundLocal(newVal)
-            vscode.postMessage({ type: 'setSoundEnabled', enabled: newVal })
           }}
           onMouseEnter={() => setHovered('sound')}
           onMouseLeave={() => setHovered(null)}
@@ -168,6 +124,7 @@ export function SettingsModal({ isOpen, onClose, isDebugMode, onToggleDebugMode 
             {soundLocal ? 'X' : ''}
           </span>
         </button>
+        {/* Debug toggle */}
         <button
           onClick={onToggleDebugMode}
           onMouseEnter={() => setHovered('debug')}

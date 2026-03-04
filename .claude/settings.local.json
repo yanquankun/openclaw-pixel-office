@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -h \"type:\" /Users/a58/mint/openclaw-pixel-agent/src/*.ts)",
+      "Bash(npm install)",
+      "Bash(npx tsc -p tsconfig.server.json --noEmit)",
+      "Bash(npx tsc -b --noEmit)",
+      "Bash(npm run build:webview)",
+      "Bash(timeout 5 npx tsx server/index.ts)",
+      "Bash(npm install react-router-dom)",
+      "Bash(npm run build)",
+      "Bash(kill %1)",
+      "Bash(npm run build:server)",
+      "Bash(node -e \":*)",
+      "Bash(pkill -f \"dist/server/server/index.js\")"
+    ]
+  }
+}

@@ -8,4 +8,15 @@ export default defineConfig({
     emptyOutDir: true,
   },
   base: './',
+  server: {
+    proxy: {
+      '/ws': {
+        target: 'ws://localhost:3210',
+        ws: true,
+      },
+      '/api': {
+        target: 'http://localhost:3210',
+      },
+    },
+  },
 })
