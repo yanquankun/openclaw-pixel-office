@@ -47,10 +47,17 @@ npm run build
 pm2 start dist/server/server/index.js --name pixel-agent
 ```
 
-### Nginx 反代
+### Nginx 反代（支持子路径部署）
+
+> 建议以子路径部署，例如 `/opc-pixel/`。本项目已做适配：
+> - WebSocket 自动根据当前 pathname 计算 `.../ws`
+> - Config 页面 API 自动使用相对 base（`.../api/config`）
 
 ```nginx
-location /opc/ {
+# 确保带尾部 /，避免相对资源路径错乱
+location = /opc-pixel { return 301 /opc-pixel/; }
+
+location /opc-pixel/ {
     proxy_pass http://127.0.0.1:3210/;
     proxy_http_version 1.1;
     proxy_set_header Upgrade $http_upgrade;
@@ -103,9 +110,13 @@ sudo nginx -t && sudo nginx -s reload
 |------|------|------|
 | **启用** | 是否开启 OpenClaw 对接 | 勾选/取消 |
 | **Session 目录** | OpenClaw Agent 的会话文件目录 | `~/.openclaw/agents` |
-| **API 端点** | OpenClaw Gateway 的 HTTP API 地址 | `http://localhost:8080` |
+| **API 端点** | OpenClaw Gateway 的 HTTP API 地址（可留空） | `http://localhost:8080` |
 
-> 当前版本中，OpenClaw 对接为预留配置。启用后，服务端会读取这些配置，但实际的 Watcher 逻辑需要根据你的 OpenClaw 部署情况来适配（见下方"对接 OpenClaw"章节）。
+✅ **当前版本已实现 Session JSONL Watcher**：启用后会监听 `~/.openclaw/agents/{main,pm,dev,ui,qa,ops,data}/sessions/*.jsonl`，解析 `toolCall` 更新像素小人状态。
+
+隐私说明：
+- 不要把任何 Token/密码/域名写进仓库。
+- 配置会保存在运行机器的 `~/.pixel-agents/config.json`（本地文件），不会提交到 Git。
 
 #### 飞书机器人
 
