@@ -160,11 +160,17 @@ export function ConfigPage() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    const base = new URL(window.location.pathname.endsWith('/') ? window.location.pathname : (window.location.pathname + '/'), window.location.origin)
-    fetch(new URL('api/config', base).toString())
-      .then(r => r.json())
+    // 使用相对路径，避免 basename 问题
+    fetch('./api/config')
+      .then(r => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`)
+        return r.json()
+      })
       .then(setConfig)
-      .catch(() => setError('无法加载配置'))
+      .catch((err) => {
+        console.error('[ConfigPage] Failed to load config:', err)
+        setError('无法加载配置')
+      })
   }, [])
 
   const showToast = (msg: string) => {
@@ -180,8 +186,7 @@ export function ConfigPage() {
     }
     setSaving(true)
     try {
-      const base = new URL(window.location.pathname.endsWith('/') ? window.location.pathname : (window.location.pathname + '/'), window.location.origin)
-      const res = await fetch(new URL('api/config', base).toString(), {
+      const res = await fetch('./api/config', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(config),
@@ -386,8 +391,7 @@ export function ConfigPage() {
           <button
             style={btnStyle}
             onClick={() => {
-              const base = new URL(window.location.pathname.endsWith('/') ? window.location.pathname : (window.location.pathname + '/'), window.location.origin)
-              fetch(new URL('api/config', base).toString()).then(r => r.json()).then(setConfig)
+              fetch('./api/config').then(r => r.json()).then(setConfig)
               showToast('已重新加载')
             }}
           >
