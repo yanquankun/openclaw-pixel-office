@@ -1,5 +1,5 @@
 /**
- * 活动日志组件 — 显示实时行为记录
+ * 活动日志组件 — 显示实时行为记录（右上角常驻面板）
  */
 
 import { useState, useEffect, useRef } from 'react'
@@ -35,7 +35,7 @@ export function LogPanel({ isOpen, onClose }: LogPanelProps) {
       .catch(console.error)
       .finally(() => setIsLoading(false))
 
-    // 每 5 秒刷新一次
+    // 每 3 秒刷新一次
     const interval = setInterval(() => {
       fetch('./api/activity-logs')
         .then(r => r.json())
@@ -45,22 +45,10 @@ export function LogPanel({ isOpen, onClose }: LogPanelProps) {
           }
         })
         .catch(console.error)
-    }, 5000)
+    }, 3000)
 
     return () => clearInterval(interval)
   }, [isOpen])
-
-  // 点击外部关闭
-  useEffect(() => {
-    if (!isOpen) return
-    const handleClickOutside = (e: MouseEvent) => {
-      if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
-        onClose()
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [isOpen, onClose])
 
   if (!isOpen) return null
 
@@ -69,11 +57,10 @@ export function LogPanel({ isOpen, onClose }: LogPanelProps) {
       ref={panelRef}
       style={{
         position: 'fixed',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        width: 'min(600px, 90vw)',
-        maxHeight: '70vh',
+        top: 16,
+        right: 16,
+        width: 'min(400px, 35vw)',
+        maxHeight: '60vh',
         background: 'var(--pixel-bg)',
         border: '3px solid var(--pixel-border)',
         borderRadius: 0,
@@ -90,17 +77,19 @@ export function LogPanel({ isOpen, onClose }: LogPanelProps) {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '12px 16px',
+          padding: '10px 14px',
           background: 'var(--pixel-accent)',
           borderBottom: '2px solid var(--pixel-border)',
+          flexShrink: 0,
         }}
       >
         <h2
           style={{
             margin: 0,
-            fontSize: '20px',
+            fontSize: '18px',
             color: '#000',
             fontFamily: "'FS Pixel Sans', monospace",
+            fontWeight: 'bold',
           }}
         >
           📋 行为日志
@@ -111,11 +100,12 @@ export function LogPanel({ isOpen, onClose }: LogPanelProps) {
             background: 'transparent',
             border: '2px solid #000',
             borderRadius: 0,
-            padding: '4px 10px',
-            fontSize: '20px',
+            padding: '2px 8px',
+            fontSize: '18px',
             cursor: 'pointer',
             fontFamily: "'FS Pixel Sans', monospace",
             color: '#000',
+            lineHeight: 1,
           }}
           title="关闭"
         >
@@ -128,10 +118,10 @@ export function LogPanel({ isOpen, onClose }: LogPanelProps) {
         style={{
           flex: 1,
           overflow: 'auto',
-          padding: 12,
+          padding: 10,
           fontFamily: "'FS Pixel Sans', monospace",
-          fontSize: '14px',
-          background: 'rgba(0,0,0,0.3)',
+          fontSize: '13px',
+          background: 'rgba(0,0,0,0.4)',
         }}
       >
         {isLoading && logs.length === 0 ? (
@@ -143,23 +133,23 @@ export function LogPanel({ isOpen, onClose }: LogPanelProps) {
             暂无日志记录
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             {logs.map((log, i) => (
               <div
                 key={i}
                 style={{
-                  background: 'rgba(255,255,255,0.05)',
+                  background: 'rgba(255,255,255,0.06)',
                   border: '1px solid var(--pixel-border)',
                   borderRadius: 0,
-                  padding: '8px 12px',
+                  padding: '6px 10px',
                 }}
               >
-                <div style={{ color: 'var(--pixel-accent)', fontSize: '12px', marginBottom: 4 }}>
+                <div style={{ color: 'var(--pixel-accent)', fontSize: '11px', marginBottom: 3 }}>
                   {log.timestamp} {log.agentName && `· ${log.agentName}`}
                 </div>
-                <div style={{ color: 'var(--pixel-text)' }}>{log.action}</div>
+                <div style={{ color: 'var(--pixel-text)', lineHeight: 1.4 }}>{log.action}</div>
                 {log.detail && (
-                  <div style={{ color: 'var(--pixel-text-dim)', fontSize: '12px', marginTop: 4 }}>
+                  <div style={{ color: 'var(--pixel-text-dim)', fontSize: '11px', marginTop: 3 }}>
                     {log.detail}
                   </div>
                 )}

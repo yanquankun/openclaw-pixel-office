@@ -61,14 +61,24 @@ app.get('/api/config', (_req, res) => {
 app.get('/api/activity-logs', (_req, res) => {
   try {
     if (!fs.existsSync(ACTIVITY_LOG_FILE)) {
-      return res.json({ success: true, logs: [] })
+      return res.json({ success: true, logs: [], date: new Date().toISOString().split('T')[0] })
     }
     const content = fs.readFileSync(ACTIVITY_LOG_FILE, 'utf-8')
     const lines = content.split('\n').filter(line => line.trim())
     // 取最后 100 条
     const recent = lines.slice(-100)
     const logs = recent.map(line => {
-      // 格式：YYYY-MM-DD HH:MM:SS | agentName | action | detail
+      // 格式：【YYYY-MM-DD HH:MM:SS】· agentName | action · detail
+      const match = line.match(/^【(.+?)】· (.+?) \| (.+?)(?: · (.+))?$/)
+      if (match) {
+        return {
+          timestamp: match[1] || '',
+          agentName: match[2] || '',
+          action: match[3] || '',
+          detail: match[4] || '',
+        }
+      }
+      // Fallback: split by |
       const parts = line.split(' | ')
       return {
         timestamp: parts[0] || '',
@@ -77,7 +87,7 @@ app.get('/api/activity-logs', (_req, res) => {
         detail: parts[3] || '',
       }
     })
-    res.json({ success: true, logs })
+    res.json({ success: true, logs, date: new Date().toISOString().split('T')[0] })
   } catch (err) {
     console.error('[ActivityLogs] Error reading log file:', err)
     res.json({ success: false, error: 'Failed to read logs' })

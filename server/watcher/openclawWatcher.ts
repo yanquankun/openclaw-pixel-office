@@ -32,11 +32,13 @@ const projectRoot = __dirname.includes(`${path.sep}dist${path.sep}`)
   : path.resolve(__dirname, '..')
 const ACTIVITY_LOG_FILE = path.join(projectRoot, 'activity.log')
 
-/** 记录活动日志 */
+/** 记录活动日志（格式参考 opc-office 项目） */
 function logActivity(agentName: string, action: string, detail?: string): void {
   try {
-    const timestamp = new Date().toLocaleString('zh-CN', { hour12: false })
-    const line = `${timestamp} | ${agentName} | ${action}${detail ? ` | ${detail}` : ''}\n`
+    const now = new Date()
+    const timestamp = now.toLocaleString('zh-CN', { hour12: false })
+    // 格式：【时间】· 代理名称 | 行为
+    const line = `【${timestamp}】· ${agentName} | ${action}${detail ? ` · ${detail}` : ''}\n`
     if (!fs.existsSync(ACTIVITY_LOG_FILE)) {
       fs.writeFileSync(ACTIVITY_LOG_FILE, '', 'utf-8')
     }

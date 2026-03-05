@@ -90,7 +90,7 @@ export function BottomToolbar({
         }}
         title="Activity Logs"
       >
-        📋 Logs
+        Logs
       </button>
       <div style={{ position: 'relative' }}>
         <button

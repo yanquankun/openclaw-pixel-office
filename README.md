@@ -10,9 +10,15 @@
 
 - **代码许可证**: MIT License（允许商用、修改、分发）
 - **美术资产**: 项目内置像素素材来源于：
-  - 原项目 `pixel-agents` 的免费素材（遵循原作者许可）
+  - 原项目 `pixel-agents` 的免费素材（基于 [JIK-A-4, Metro City](https://jik-a-4.itch.io/metrocity-free-topdown-character-pack) 角色包）
+  - 办公室地砖素材：[Office Interior Tileset (16x16)](https://donarg.itch.io/officetileset) by Donarg（$2 USD，已购买授权）
   - [itch.io 免费像素素材](https://itch.io/game-assets/tag-office/tag-pixel-art)（CC0 / 免费商用）
   - 部分自定义素材（本团队原创，MIT 许可）
+
+> 💡 **提示**: 如果你想丰富场景内容，可以：
+> 1. 购买 [Office Interior Tileset](https://donarg.itch.io/officetileset)（$2 USD）
+> 2. 运行 `npm run import-tileset` 导入完整家具目录
+> 3. 或者使用免费的 [Metro City 角色包](https://jik-a-4.itch.io/metrocity-free-topdown-character-pack)
 
 > ⚠️ **注意**: 如果你计划商用本项目，请确保替换或确认所有美术资产的许可协议。代码部分完全开源自由。
 
