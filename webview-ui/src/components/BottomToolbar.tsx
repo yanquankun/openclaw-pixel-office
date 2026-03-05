@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { SettingsModal } from './SettingsModal.js'
+import { LogPanel } from './LogPanel.js'
 
 interface BottomToolbarProps {
   isEditMode: boolean
@@ -47,6 +48,7 @@ export function BottomToolbar({
 }: BottomToolbarProps) {
   const [hovered, setHovered] = useState<string | null>(null)
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
+  const [isLogOpen, setIsLogOpen] = useState(false)
 
   return (
     <div style={panelStyle}>
@@ -78,6 +80,18 @@ export function BottomToolbar({
       >
         Config
       </button>
+      <button
+        onClick={() => setIsLogOpen(true)}
+        onMouseEnter={() => setHovered('logs')}
+        onMouseLeave={() => setHovered(null)}
+        style={{
+          ...btnBase,
+          background: hovered === 'logs' ? 'var(--pixel-btn-hover-bg)' : btnBase.background,
+        }}
+        title="Activity Logs"
+      >
+        📋 Logs
+      </button>
       <div style={{ position: 'relative' }}>
         <button
           onClick={() => setIsSettingsOpen((v) => !v)}
@@ -102,6 +116,7 @@ export function BottomToolbar({
           onToggleDebugMode={onToggleDebugMode}
         />
       </div>
+      <LogPanel isOpen={isLogOpen} onClose={() => setIsLogOpen(false)} />
     </div>
   )
 }

@@ -190,6 +190,11 @@ export function useExtensionMessages(
         const toolName = extractToolName(status)
         os.setAgentTool(id, toolName)
         os.setAgentActive(id, true)
+        // 设置任务名称用于显示
+        const ch = os.characters.get(id)
+        if (ch) {
+          ch.toolName = toolName ?? undefined
+        }
         os.clearPermissionBubble(id)
         // Create sub-agent character for Task tool subtasks
         if (status.startsWith('Subtask:')) {
@@ -230,6 +235,11 @@ export function useExtensionMessages(
         setSubagentCharacters((prev) => prev.filter((s) => s.parentAgentId !== id))
         os.setAgentTool(id, null)
         os.clearPermissionBubble(id)
+        // 清除任务名称
+        const ch = os.characters.get(id)
+        if (ch) {
+          delete ch.toolName
+        }
       } else if (msg.type === 'agentSelected') {
         const id = msg.id as number
         setSelectedAgent(id)

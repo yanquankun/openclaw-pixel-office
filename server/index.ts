@@ -10,6 +10,7 @@ import { createServer } from 'node:http'
 import { SERVER_PORT, ASSETS_ROOT } from './config.js'
 import type { AppConfig } from './config.js'
 import type { AgentEvent } from './watcher/types.js'
+import * as fs from 'node:fs'
 import { loadAllAssets } from './assetLoader.js'
 import { AgentStateManager } from './agentStateManager.js'
 import { createWsServer } from './wsServer.js'
@@ -23,6 +24,9 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const projectRoot = __dirname.includes(`${path.sep}dist${path.sep}`)
   ? path.resolve(__dirname, '..', '..', '..')
   : path.resolve(__dirname, '..')
+
+// 活动日志文件路径
+const ACTIVITY_LOG_FILE = path.join(projectRoot, 'activity.log')
 
 // ── 加载资产 ─────────────────────────────────────────────────
 
@@ -51,6 +55,33 @@ app.use(express.json())
 app.get('/api/config', (_req, res) => {
   const config = readConfig()
   res.json(config)
+})
+
+// 活动日志 API
+app.get('/api/activity-logs', (_req, res) => {
+  try {
+    if (!fs.existsSync(ACTIVITY_LOG_FILE)) {
+      return res.json({ success: true, logs: [] })
+    }
+    const content = fs.readFileSync(ACTIVITY_LOG_FILE, 'utf-8')
+    const lines = content.split('\n').filter(line => line.trim())
+    // 取最后 100 条
+    const recent = lines.slice(-100)
+    const logs = recent.map(line => {
+      // 格式：YYYY-MM-DD HH:MM:SS | agentName | action | detail
+      const parts = line.split(' | ')
+      return {
+        timestamp: parts[0] || '',
+        agentName: parts[1] || '',
+        action: parts[2] || '',
+        detail: parts[3] || '',
+      }
+    })
+    res.json({ success: true, logs })
+  } catch (err) {
+    console.error('[ActivityLogs] Error reading log file:', err)
+    res.json({ success: false, error: 'Failed to read logs' })
+  }
 })
 
 app.post('/api/config', (req, res) => {

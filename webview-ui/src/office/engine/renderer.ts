@@ -176,6 +176,29 @@ export function renderScene(
         c.drawImage(cached, drawX, drawY)
       },
     })
+
+    // 任务名称标签（显示在人物头上）
+    if (ch.toolName && ch.isActive) {
+      const taskDrawX = drawX
+      const taskDrawY = drawY - cached.height - 8
+      const taskText = ch.toolName
+      drawables.push({
+        zY: charZY - 1, // 在角色前面渲染
+        draw: (c) => {
+          c.save()
+          c.font = '12px "FS Pixel Sans", monospace'
+          c.fillStyle = '#ffd700'
+          c.strokeStyle = '#000'
+          c.lineWidth = 3
+          c.textAlign = 'center'
+          c.textBaseline = 'bottom'
+          const displayText = taskText.length > 12 ? taskText.slice(0, 12) + '...' : taskText
+          c.strokeText(displayText, taskDrawX, taskDrawY)
+          c.fillText(displayText, taskDrawX, taskDrawY)
+          c.restore()
+        },
+      })
+    }
   }
 
   // Sort by Y (lower = in front = drawn later)

@@ -20,7 +20,31 @@
 
 import * as fs from 'node:fs'
 import * as path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import type { Watcher, AgentEvent } from './types.js'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
+// 活动日志文件路径（与 server/index.ts 一致）
+const projectRoot = __dirname.includes(`${path.sep}dist${path.sep}`)
+  ? path.resolve(__dirname, '..', '..', '..')
+  : path.resolve(__dirname, '..')
+const ACTIVITY_LOG_FILE = path.join(projectRoot, 'activity.log')
+
+/** 记录活动日志 */
+function logActivity(agentName: string, action: string, detail?: string): void {
+  try {
+    const timestamp = new Date().toLocaleString('zh-CN', { hour12: false })
+    const line = `${timestamp} | ${agentName} | ${action}${detail ? ` | ${detail}` : ''}\n`
+    if (!fs.existsSync(ACTIVITY_LOG_FILE)) {
+      fs.writeFileSync(ACTIVITY_LOG_FILE, '', 'utf-8')
+    }
+    fs.appendFileSync(ACTIVITY_LOG_FILE, line, 'utf-8')
+  } catch (err) {
+    console.error('[OpenClawWatcher] Failed to write activity log:', err)
+  }
+}
 
 /** OpenClaw 角色名到 Agent ID 的映射 */
 const ROLE_TO_AGENT_ID: Record<string, number> = {
@@ -31,6 +55,23 @@ const ROLE_TO_AGENT_ID: Record<string, number> = {
   'qa': 5,          // Rex · QA
   'ops': 6,         // Nova · Ops
   'data': 7,        // Zoe · Data
+}
+
+/** Agent ID 到角色名的反向映射 */
+const AGENT_ID_TO_ROLE: Record<number, string> = {}
+for (const [role, id] of Object.entries(ROLE_TO_AGENT_ID)) {
+  AGENT_ID_TO_ROLE[id] = role
+}
+
+/** 角色名到显示名的映射 */
+const ROLE_TO_DISPLAY_NAME: Record<string, string> = {
+  'main': 'OpenClaw',
+  'pm': 'Mia·PM',
+  'dev': 'Kai·Dev',
+  'ui': 'Aria·UI',
+  'qa': 'Rex·QA',
+  'ops': 'Nova·Ops',
+  'data': 'Zoe·Data',
 }
 
 /** OpenClaw 工具名到像素小人动画的映射 */
@@ -210,11 +251,19 @@ export class OpenClawWatcher implements Watcher {
 
         this.callback({ agentId, type: 'active', toolName })
 
+        // 记录活动日志
+        const roleName = AGENT_ID_TO_ROLE[agentId] || `agent-${agentId}`
+        const displayName = ROLE_TO_DISPLAY_NAME[roleName] || roleName
+        logActivity(displayName, '执行工具', toolName)
+
         // Debounced idle: mark idle if no further toolCall within TTL
         const prev = this.idleTimers.get(agentId)
         if (prev) clearTimeout(prev)
         const t = setTimeout(() => {
-          if (this.callback) this.callback({ agentId, type: 'idle' })
+          if (this.callback) {
+            this.callback({ agentId, type: 'idle' })
+            logActivity(displayName, '任务完成', '进入待命状态')
+          }
         }, 22000)
         this.idleTimers.set(agentId, t)
 
