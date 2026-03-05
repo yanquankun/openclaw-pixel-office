@@ -151,6 +151,38 @@ function loadCharacterSprites(assetsRoot: string): CharacterDirectionSprites[] {
 // ── 地板 ─────────────────────────────────────────────────────
 
 function loadFloorTiles(assetsRoot: string): string[][][] {
+  // Try new Office Tileset first
+  const tilesetPath = path.join(assetsRoot, 'assets', 'Office Tileset', 'Office Tileset All 16x16.png')
+  if (fs.existsSync(tilesetPath)) {
+    const pngBuffer = fs.readFileSync(tilesetPath)
+    const png = PNG.sync.read(pngBuffer)
+    const sprites: string[][][] = []
+
+    // New tileset: 16x16 tiles in grid, extract first 7 floor patterns
+    for (let t = 0; t < FLOOR_PATTERN_COUNT; t++) {
+      const sprite: string[][] = []
+      for (let y = 0; y < FLOOR_TILE_SIZE; y++) {
+        const row: string[] = []
+        for (let x = 0; x < FLOOR_TILE_SIZE; x++) {
+          const px = t * FLOOR_TILE_SIZE + x
+          const idx = (y * png.width + px) * 4
+          const a = png.data[idx + 3]
+          if (a < PNG_ALPHA_THRESHOLD) {
+            row.push('')
+          } else {
+            row.push(pixelToHex(png.data[idx], png.data[idx + 1], png.data[idx + 2]))
+          }
+        }
+        sprite.push(row)
+      }
+      sprites.push(sprite)
+    }
+
+    console.log(`[AssetLoader] Loaded ${sprites.length} floor tile patterns from Office Tileset`)
+    return sprites
+  }
+
+  // Fallback to old floors.png
   const floorPath = path.join(assetsRoot, 'assets', 'floors.png')
   if (!fs.existsSync(floorPath)) {
     console.warn('[AssetLoader] floors.png not found')
@@ -187,6 +219,39 @@ function loadFloorTiles(assetsRoot: string): string[][][] {
 // ── 墙壁 ─────────────────────────────────────────────────────
 
 function loadWallTiles(assetsRoot: string): string[][][] {
+  // Try new Office Tileset VX Ace walls first
+  const tilesetWallPath = path.join(assetsRoot, 'assets', 'Office Tileset', 'Office VX Ace', 'A4 Office Walls.png')
+  if (fs.existsSync(tilesetWallPath)) {
+    const pngBuffer = fs.readFileSync(tilesetWallPath)
+    const png = PNG.sync.read(pngBuffer)
+    const sprites: string[][][] = []
+
+    // Extract 16 wall pieces from VX Ace format
+    for (let mask = 0; mask < WALL_BITMASK_COUNT; mask++) {
+      const ox = (mask % WALL_GRID_COLS) * WALL_PIECE_WIDTH
+      const oy = Math.floor(mask / WALL_GRID_COLS) * WALL_PIECE_HEIGHT
+      const sprite: string[][] = []
+      for (let r = 0; r < WALL_PIECE_HEIGHT; r++) {
+        const row: string[] = []
+        for (let c = 0; c < WALL_PIECE_WIDTH; c++) {
+          const idx = ((oy + r) * png.width + (ox + c)) * 4
+          const a = png.data[idx + 3]
+          if (a < PNG_ALPHA_THRESHOLD) {
+            row.push('')
+          } else {
+            row.push(pixelToHex(png.data[idx], png.data[idx + 1], png.data[idx + 2]))
+          }
+        }
+        sprite.push(row)
+      }
+      sprites.push(sprite)
+    }
+
+    console.log(`[AssetLoader] Loaded ${sprites.length} wall tile pieces from Office Tileset`)
+    return sprites
+  }
+
+  // Fallback to old walls.png
   const wallPath = path.join(assetsRoot, 'assets', 'walls.png')
   if (!fs.existsSync(wallPath)) {
     console.warn('[AssetLoader] walls.png not found')
