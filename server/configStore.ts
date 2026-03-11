@@ -17,9 +17,19 @@ export function readConfig(): AppConfig {
   try {
     if (fs.existsSync(configPath)) {
       const content = fs.readFileSync(configPath, 'utf-8')
-      const parsed = JSON.parse(content) as AppConfig
+      const parsed = JSON.parse(content) as Partial<AppConfig> & {
+        openclaw?: Partial<AppConfig['openclaw']>
+      }
       if (parsed.version === 1 && Array.isArray(parsed.agents)) {
-        return parsed
+        const defaults = createDefaultConfig()
+        return {
+          ...defaults,
+          ...parsed,
+          openclaw: {
+            ...defaults.openclaw,
+            ...parsed.openclaw,
+          },
+        }
       }
     }
   } catch { /* fall through */ }

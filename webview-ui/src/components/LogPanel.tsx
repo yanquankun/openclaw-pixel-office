@@ -25,7 +25,7 @@ export function LogPanel({ isOpen, onClose }: LogPanelProps) {
     if (!isOpen) return
 
     setIsLoading(true)
-    fetch('./api/activity-logs')
+    fetch('/opc-pixel/api/activity-logs')
       .then(r => r.json())
       .then(data => {
         if (data.success && data.logs) {
@@ -37,7 +37,7 @@ export function LogPanel({ isOpen, onClose }: LogPanelProps) {
 
     // 每 3 秒刷新一次
     const interval = setInterval(() => {
-      fetch('./api/activity-logs')
+      fetch('/opc-pixel/api/activity-logs')
         .then(r => r.json())
         .then(data => {
           if (data.success && data.logs) {
@@ -59,8 +59,8 @@ export function LogPanel({ isOpen, onClose }: LogPanelProps) {
         position: 'fixed',
         top: 16,
         right: 16,
-        width: 'min(400px, 35vw)',
-        maxHeight: '60vh',
+        width: 'min(480px, 42vw)',
+        maxHeight: '50vh',
         background: 'var(--pixel-bg)',
         border: '3px solid var(--pixel-border)',
         borderRadius: 0,
@@ -86,7 +86,7 @@ export function LogPanel({ isOpen, onClose }: LogPanelProps) {
         <h2
           style={{
             margin: 0,
-            fontSize: '18px',
+            fontSize: '20px',
             color: '#000',
             fontFamily: "'FS Pixel Sans', monospace",
             fontWeight: 'bold',
@@ -100,8 +100,8 @@ export function LogPanel({ isOpen, onClose }: LogPanelProps) {
             background: 'transparent',
             border: '2px solid #000',
             borderRadius: 0,
-            padding: '2px 8px',
-            fontSize: '18px',
+            padding: '4px 10px',
+            fontSize: '20px',
             cursor: 'pointer',
             fontFamily: "'FS Pixel Sans', monospace",
             color: '#000',
@@ -118,22 +118,22 @@ export function LogPanel({ isOpen, onClose }: LogPanelProps) {
         style={{
           flex: 1,
           overflow: 'auto',
-          padding: 10,
+          padding: 16,
           fontFamily: "'FS Pixel Sans', monospace",
-          fontSize: '13px',
+          fontSize: '19px',
           background: 'rgba(0,0,0,0.4)',
         }}
       >
         {isLoading && logs.length === 0 ? (
-          <div style={{ color: 'var(--pixel-text-dim)', textAlign: 'center', padding: 20 }}>
+          <div style={{ color: 'var(--pixel-text-dim)', textAlign: 'center', padding: 28, fontSize: '18px' }}>
             加载中...
           </div>
         ) : logs.length === 0 ? (
-          <div style={{ color: 'var(--pixel-text-dim)', textAlign: 'center', padding: 20 }}>
+          <div style={{ color: 'var(--pixel-text-dim)', textAlign: 'center', padding: 28, fontSize: '18px' }}>
             暂无日志记录
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {logs.map((log, i) => (
               <div
                 key={i}
@@ -141,15 +141,15 @@ export function LogPanel({ isOpen, onClose }: LogPanelProps) {
                   background: 'rgba(255,255,255,0.06)',
                   border: '1px solid var(--pixel-border)',
                   borderRadius: 0,
-                  padding: '6px 10px',
+                  padding: '10px 12px',
                 }}
               >
-                <div style={{ color: 'var(--pixel-accent)', fontSize: '11px', marginBottom: 3 }}>
+                <div style={{ color: 'var(--pixel-accent)', fontSize: '17px', marginBottom: 8, lineHeight: 1.5 }}>
                   {log.timestamp} {log.agentName && `· ${log.agentName}`}
                 </div>
-                <div style={{ color: 'var(--pixel-text)', lineHeight: 1.4 }}>{log.action}</div>
+                <div style={{ color: 'var(--pixel-text)', lineHeight: 1.65, fontSize: '20px' }}>{log.action}</div>
                 {log.detail && (
-                  <div style={{ color: 'var(--pixel-text-dim)', fontSize: '11px', marginTop: 3 }}>
+                  <div style={{ color: 'var(--pixel-text-dim)', fontSize: '18px', marginTop: 8, lineHeight: 1.6 }}>
                     {log.detail}
                   </div>
                 )}

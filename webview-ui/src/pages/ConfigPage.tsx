@@ -161,7 +161,7 @@ export function ConfigPage() {
 
   useEffect(() => {
     // 使用相对路径，避免 basename 问题
-    fetch('./api/config')
+    fetch('/opc-pixel/api/config')
       .then(r => {
         if (!r.ok) throw new Error(`HTTP ${r.status}`)
         return r.json()
@@ -186,7 +186,7 @@ export function ConfigPage() {
     }
     setSaving(true)
     try {
-      const res = await fetch('./api/config', {
+      const res = await fetch('/opc-pixel/api/config', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(config),
@@ -332,7 +332,7 @@ export function ConfigPage() {
             />
             <span>启用 OpenClaw 对接</span>
           </div>
-          <div style={{ marginBottom: 8 }}>
+          <div>
             <span style={labelStyle}>Session 目录</span>
             <input
               style={{ ...inputStyle, marginTop: 4 }}
@@ -344,46 +344,6 @@ export function ConfigPage() {
               disabled={!config.openclaw.enabled}
             />
           </div>
-          <div>
-            <span style={labelStyle}>API 端点</span>
-            <input
-              style={{ ...inputStyle, marginTop: 4 }}
-              value={config.openclaw.apiEndpoint}
-              onChange={e =>
-                setConfig({ ...config, openclaw: { ...config.openclaw, apiEndpoint: e.target.value } })
-              }
-              placeholder="如：http://localhost:8080"
-              disabled={!config.openclaw.enabled}
-            />
-          </div>
-        </div>
-
-        {/* 飞书机器人配置 */}
-        <div style={sectionStyle}>
-          <div style={sectionTitleStyle}>飞书机器人</div>
-          <div style={checkboxRowStyle}>
-            <input
-              type="checkbox"
-              checked={config.feishu.enabled}
-              onChange={e =>
-                setConfig({ ...config, feishu: { ...config.feishu, enabled: e.target.checked } })
-              }
-              style={{ width: 18, height: 18 }}
-            />
-            <span>启用飞书 Webhook</span>
-          </div>
-          <div>
-            <span style={labelStyle}>Webhook URL</span>
-            <input
-              style={{ ...inputStyle, marginTop: 4 }}
-              value={config.feishu.webhookUrl}
-              onChange={e =>
-                setConfig({ ...config, feishu: { ...config.feishu, webhookUrl: e.target.value } })
-              }
-              placeholder="如：https://open.feishu.cn/open-apis/bot/v2/hook/xxx"
-              disabled={!config.feishu.enabled}
-            />
-          </div>
         </div>
 
         {/* 操作按钮 */}
@@ -391,7 +351,7 @@ export function ConfigPage() {
           <button
             style={btnStyle}
             onClick={() => {
-              fetch('./api/config').then(r => r.json()).then(setConfig)
+              fetch('/opc-pixel/api/config').then(r => r.json()).then(setConfig)
               showToast('已重新加载')
             }}
           >

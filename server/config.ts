@@ -3,7 +3,7 @@
  */
 
 // 重导出共享配置类型
-export type { AgentConfig, AppConfig, OpenClawSettings, FeishuSettings } from '../shared/configTypes.js'
+export type { AgentConfig, AppConfig, OpenClawSettings } from '../shared/configTypes.js'
 
 // ── 服务端常量 ──────────────────────────────────────────────
 

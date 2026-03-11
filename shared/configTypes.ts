@@ -13,19 +13,12 @@ export interface AgentConfig {
 export interface OpenClawSettings {
   enabled: boolean
   sessionDir: string    // 如 ~/.openclaw/agents
-  apiEndpoint: string   // 如 http://localhost:8080
-}
-
-export interface FeishuSettings {
-  enabled: boolean
-  webhookUrl: string
 }
 
 export interface AppConfig {
   version: 1
   agents: AgentConfig[]
   openclaw: OpenClawSettings
-  feishu: FeishuSettings
 }
 
 /** 默认配置：7 个角色 */
@@ -44,11 +37,6 @@ export function createDefaultConfig(): AppConfig {
     openclaw: {
       enabled: false,
       sessionDir: '',
-      apiEndpoint: '',
-    },
-    feishu: {
-      enabled: false,
-      webhookUrl: '',
     },
   }
 }
