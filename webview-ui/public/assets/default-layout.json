@@ -3223,25 +3223,37 @@
       "uid": "whiteboard-tl",
       "type": "whiteboard",
       "col": 3,
-      "row": 1
+      "row": 0
     },
     {
       "uid": "whiteboard-tr",
       "type": "whiteboard",
       "col": 18,
-      "row": 1
+      "row": 0
     },
     {
-      "uid": "whiteboard-mid",
+      "uid": "whiteboard-mid-l",
       "type": "whiteboard",
-      "col": 11,
-      "row": 7
+      "col": 8,
+      "row": 6
     },
     {
-      "uid": "whiteboard-bottom",
+      "uid": "whiteboard-mid-r",
       "type": "whiteboard",
-      "col": 11,
-      "row": 15
+      "col": 15,
+      "row": 6
+    },
+    {
+      "uid": "whiteboard-bottom-l",
+      "type": "whiteboard",
+      "col": 6,
+      "row": 13
+    },
+    {
+      "uid": "whiteboard-bottom-r",
+      "type": "whiteboard",
+      "col": 17,
+      "row": 13
     },
     {
       "uid": "bookshelf-l1",
@@ -3280,6 +3292,18 @@
       "row": 15
     },
     {
+      "uid": "bookshelf-b3",
+      "type": "bookshelf",
+      "col": 1,
+      "row": 17
+    },
+    {
+      "uid": "bookshelf-b4",
+      "type": "bookshelf",
+      "col": 24,
+      "row": 17
+    },
+    {
       "uid": "cooler-left",
       "type": "cooler",
       "col": 2,
@@ -3306,26 +3330,38 @@
     {
       "uid": "plant-mid-l",
       "type": "plant",
-      "col": 9,
+      "col": 7,
       "row": 10
     },
     {
       "uid": "plant-mid-r",
       "type": "plant",
-      "col": 16,
+      "col": 18,
       "row": 10
     },
     {
-      "uid": "plant-bl",
+      "uid": "plant-bottom-l",
       "type": "plant",
-      "col": 2,
+      "col": 3,
       "row": 18
     },
     {
-      "uid": "plant-br",
+      "uid": "plant-bottom-r",
       "type": "plant",
-      "col": 23,
+      "col": 22,
       "row": 18
+    },
+    {
+      "uid": "plant-corridor-l",
+      "type": "plant",
+      "col": 11,
+      "row": 11
+    },
+    {
+      "uid": "plant-corridor-r",
+      "type": "plant",
+      "col": 14,
+      "row": 11
     },
     {
       "uid": "desk-tl-1",
@@ -3385,6 +3421,126 @@
       "uid": "desk-br-2",
       "type": "desk",
       "col": 19,
+      "row": 15
+    },
+    {
+      "uid": "pc-tl-1",
+      "type": "pc",
+      "col": 4,
+      "row": 2
+    },
+    {
+      "uid": "lamp-tl-1",
+      "type": "lamp",
+      "col": 5,
+      "row": 2
+    },
+    {
+      "uid": "pc-tl-2",
+      "type": "pc",
+      "col": 8,
+      "row": 2
+    },
+    {
+      "uid": "lamp-tl-2",
+      "type": "lamp",
+      "col": 9,
+      "row": 2
+    },
+    {
+      "uid": "pc-tr-1",
+      "type": "pc",
+      "col": 16,
+      "row": 2
+    },
+    {
+      "uid": "lamp-tr-1",
+      "type": "lamp",
+      "col": 17,
+      "row": 2
+    },
+    {
+      "uid": "pc-tr-2",
+      "type": "pc",
+      "col": 20,
+      "row": 2
+    },
+    {
+      "uid": "lamp-tr-2",
+      "type": "lamp",
+      "col": 21,
+      "row": 2
+    },
+    {
+      "uid": "pc-mid-1",
+      "type": "pc",
+      "col": 9,
+      "row": 8
+    },
+    {
+      "uid": "lamp-mid-1",
+      "type": "lamp",
+      "col": 10,
+      "row": 8
+    },
+    {
+      "uid": "pc-mid-2",
+      "type": "pc",
+      "col": 14,
+      "row": 8
+    },
+    {
+      "uid": "lamp-mid-2",
+      "type": "lamp",
+      "col": 15,
+      "row": 8
+    },
+    {
+      "uid": "pc-bl-1",
+      "type": "pc",
+      "col": 5,
+      "row": 15
+    },
+    {
+      "uid": "lamp-bl-1",
+      "type": "lamp",
+      "col": 6,
+      "row": 15
+    },
+    {
+      "uid": "pc-bl-2",
+      "type": "pc",
+      "col": 9,
+      "row": 15
+    },
+    {
+      "uid": "lamp-bl-2",
+      "type": "lamp",
+      "col": 10,
+      "row": 15
+    },
+    {
+      "uid": "pc-br-1",
+      "type": "pc",
+      "col": 15,
+      "row": 15
+    },
+    {
+      "uid": "lamp-br-1",
+      "type": "lamp",
+      "col": 16,
+      "row": 15
+    },
+    {
+      "uid": "pc-br-2",
+      "type": "pc",
+      "col": 19,
+      "row": 15
+    },
+    {
+      "uid": "lamp-br-2",
+      "type": "lamp",
+      "col": 20,
       "row": 15
     },
     {
@@ -3506,6 +3662,36 @@
       "type": "chair",
       "col": 20,
       "row": 17
+    },
+    {
+      "uid": "desk-collab",
+      "type": "desk",
+      "col": 11,
+      "row": 9
+    },
+    {
+      "uid": "pc-collab",
+      "type": "pc",
+      "col": 11,
+      "row": 9
+    },
+    {
+      "uid": "lamp-collab",
+      "type": "lamp",
+      "col": 12,
+      "row": 9
+    },
+    {
+      "uid": "chair-collab-top",
+      "type": "chair",
+      "col": 11,
+      "row": 8
+    },
+    {
+      "uid": "chair-collab-bottom",
+      "type": "chair",
+      "col": 12,
+      "row": 11
     }
   ]
 }

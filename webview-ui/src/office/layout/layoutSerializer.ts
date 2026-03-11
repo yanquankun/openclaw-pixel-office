@@ -281,28 +281,37 @@ export function createDefaultLayout(): OfficeLayout {
   }
 
   const furniture: PlacedFurniture[] = [
-    { uid: 'whiteboard-tl', type: FurnitureType.WHITEBOARD, col: 3, row: 1 },
-    { uid: 'whiteboard-tr', type: FurnitureType.WHITEBOARD, col: 18, row: 1 },
-    { uid: 'whiteboard-mid', type: FurnitureType.WHITEBOARD, col: 11, row: 7 },
-    { uid: 'whiteboard-bottom', type: FurnitureType.WHITEBOARD, col: 11, row: 15 },
+    // Wall zone / signage
+    { uid: 'whiteboard-tl', type: FurnitureType.WHITEBOARD, col: 3, row: 0 },
+    { uid: 'whiteboard-tr', type: FurnitureType.WHITEBOARD, col: 18, row: 0 },
+    { uid: 'whiteboard-mid-l', type: FurnitureType.WHITEBOARD, col: 8, row: 6 },
+    { uid: 'whiteboard-mid-r', type: FurnitureType.WHITEBOARD, col: 15, row: 6 },
+    { uid: 'whiteboard-bottom-l', type: FurnitureType.WHITEBOARD, col: 6, row: 13 },
+    { uid: 'whiteboard-bottom-r', type: FurnitureType.WHITEBOARD, col: 17, row: 13 },
 
+    // Storage / edge detailing
     { uid: 'bookshelf-l1', type: FurnitureType.BOOKSHELF, col: 1, row: 2 },
     { uid: 'bookshelf-l2', type: FurnitureType.BOOKSHELF, col: 1, row: 4 },
     { uid: 'bookshelf-r1', type: FurnitureType.BOOKSHELF, col: 24, row: 2 },
     { uid: 'bookshelf-r2', type: FurnitureType.BOOKSHELF, col: 24, row: 4 },
     { uid: 'bookshelf-b1', type: FurnitureType.BOOKSHELF, col: 1, row: 15 },
     { uid: 'bookshelf-b2', type: FurnitureType.BOOKSHELF, col: 24, row: 15 },
+    { uid: 'bookshelf-b3', type: FurnitureType.BOOKSHELF, col: 1, row: 17 },
+    { uid: 'bookshelf-b4', type: FurnitureType.BOOKSHELF, col: 24, row: 17 },
 
+    // Utility / greenery
     { uid: 'cooler-left', type: FurnitureType.COOLER, col: 2, row: 8 },
     { uid: 'cooler-right', type: FurnitureType.COOLER, col: 23, row: 8 },
-
     { uid: 'plant-tl', type: FurnitureType.PLANT, col: 2, row: 1 },
     { uid: 'plant-tr', type: FurnitureType.PLANT, col: 23, row: 1 },
-    { uid: 'plant-mid-l', type: FurnitureType.PLANT, col: 9, row: 10 },
-    { uid: 'plant-mid-r', type: FurnitureType.PLANT, col: 16, row: 10 },
-    { uid: 'plant-bl', type: FurnitureType.PLANT, col: 2, row: 18 },
-    { uid: 'plant-br', type: FurnitureType.PLANT, col: 23, row: 18 },
+    { uid: 'plant-mid-l', type: FurnitureType.PLANT, col: 7, row: 10 },
+    { uid: 'plant-mid-r', type: FurnitureType.PLANT, col: 18, row: 10 },
+    { uid: 'plant-bottom-l', type: FurnitureType.PLANT, col: 3, row: 18 },
+    { uid: 'plant-bottom-r', type: FurnitureType.PLANT, col: 22, row: 18 },
+    { uid: 'plant-corridor-l', type: FurnitureType.PLANT, col: 11, row: 11 },
+    { uid: 'plant-corridor-r', type: FurnitureType.PLANT, col: 14, row: 11 },
 
+    // Main workstations
     { uid: 'desk-tl-1', type: FurnitureType.DESK, col: 4, row: 2 },
     { uid: 'desk-tl-2', type: FurnitureType.DESK, col: 8, row: 2 },
     { uid: 'desk-tr-1', type: FurnitureType.DESK, col: 16, row: 2 },
@@ -314,30 +323,56 @@ export function createDefaultLayout(): OfficeLayout {
     { uid: 'desk-br-1', type: FurnitureType.DESK, col: 15, row: 15 },
     { uid: 'desk-br-2', type: FurnitureType.DESK, col: 19, row: 15 },
 
+    // Surface electronics / lighting for desks
+    { uid: 'pc-tl-1', type: FurnitureType.PC, col: 4, row: 2 },
+    { uid: 'lamp-tl-1', type: FurnitureType.LAMP, col: 5, row: 2 },
+    { uid: 'pc-tl-2', type: FurnitureType.PC, col: 8, row: 2 },
+    { uid: 'lamp-tl-2', type: FurnitureType.LAMP, col: 9, row: 2 },
+    { uid: 'pc-tr-1', type: FurnitureType.PC, col: 16, row: 2 },
+    { uid: 'lamp-tr-1', type: FurnitureType.LAMP, col: 17, row: 2 },
+    { uid: 'pc-tr-2', type: FurnitureType.PC, col: 20, row: 2 },
+    { uid: 'lamp-tr-2', type: FurnitureType.LAMP, col: 21, row: 2 },
+    { uid: 'pc-mid-1', type: FurnitureType.PC, col: 9, row: 8 },
+    { uid: 'lamp-mid-1', type: FurnitureType.LAMP, col: 10, row: 8 },
+    { uid: 'pc-mid-2', type: FurnitureType.PC, col: 14, row: 8 },
+    { uid: 'lamp-mid-2', type: FurnitureType.LAMP, col: 15, row: 8 },
+    { uid: 'pc-bl-1', type: FurnitureType.PC, col: 5, row: 15 },
+    { uid: 'lamp-bl-1', type: FurnitureType.LAMP, col: 6, row: 15 },
+    { uid: 'pc-bl-2', type: FurnitureType.PC, col: 9, row: 15 },
+    { uid: 'lamp-bl-2', type: FurnitureType.LAMP, col: 10, row: 15 },
+    { uid: 'pc-br-1', type: FurnitureType.PC, col: 15, row: 15 },
+    { uid: 'lamp-br-1', type: FurnitureType.LAMP, col: 16, row: 15 },
+    { uid: 'pc-br-2', type: FurnitureType.PC, col: 19, row: 15 },
+    { uid: 'lamp-br-2', type: FurnitureType.LAMP, col: 20, row: 15 },
+
+    // Seating around desks / collaboration
     { uid: 'chair-tl-1-top', type: FurnitureType.CHAIR, col: 4, row: 1 },
     { uid: 'chair-tl-1-bottom', type: FurnitureType.CHAIR, col: 5, row: 4 },
     { uid: 'chair-tl-2-top', type: FurnitureType.CHAIR, col: 8, row: 1 },
     { uid: 'chair-tl-2-bottom', type: FurnitureType.CHAIR, col: 9, row: 4 },
-
     { uid: 'chair-tr-1-top', type: FurnitureType.CHAIR, col: 16, row: 1 },
     { uid: 'chair-tr-1-bottom', type: FurnitureType.CHAIR, col: 17, row: 4 },
     { uid: 'chair-tr-2-top', type: FurnitureType.CHAIR, col: 20, row: 1 },
     { uid: 'chair-tr-2-bottom', type: FurnitureType.CHAIR, col: 21, row: 4 },
-
     { uid: 'chair-mid-1-top', type: FurnitureType.CHAIR, col: 9, row: 7 },
     { uid: 'chair-mid-1-bottom', type: FurnitureType.CHAIR, col: 10, row: 10 },
     { uid: 'chair-mid-2-top', type: FurnitureType.CHAIR, col: 14, row: 7 },
     { uid: 'chair-mid-2-bottom', type: FurnitureType.CHAIR, col: 15, row: 10 },
-
     { uid: 'chair-bl-1-top', type: FurnitureType.CHAIR, col: 5, row: 14 },
     { uid: 'chair-bl-1-bottom', type: FurnitureType.CHAIR, col: 6, row: 17 },
     { uid: 'chair-bl-2-top', type: FurnitureType.CHAIR, col: 9, row: 14 },
     { uid: 'chair-bl-2-bottom', type: FurnitureType.CHAIR, col: 10, row: 17 },
-
     { uid: 'chair-br-1-top', type: FurnitureType.CHAIR, col: 15, row: 14 },
     { uid: 'chair-br-1-bottom', type: FurnitureType.CHAIR, col: 16, row: 17 },
     { uid: 'chair-br-2-top', type: FurnitureType.CHAIR, col: 19, row: 14 },
     { uid: 'chair-br-2-bottom', type: FurnitureType.CHAIR, col: 20, row: 17 },
+
+    // Central collaboration mini-island
+    { uid: 'desk-collab', type: FurnitureType.DESK, col: 11, row: 9 },
+    { uid: 'pc-collab', type: FurnitureType.PC, col: 11, row: 9 },
+    { uid: 'lamp-collab', type: FurnitureType.LAMP, col: 12, row: 9 },
+    { uid: 'chair-collab-top', type: FurnitureType.CHAIR, col: 11, row: 8 },
+    { uid: 'chair-collab-bottom', type: FurnitureType.CHAIR, col: 12, row: 11 },
   ]
 
   return { version: 1, cols, rows, tiles, tileColors, furniture }
