@@ -1,4 +1,4 @@
-import { TileType, FurnitureType, DEFAULT_COLS, DEFAULT_ROWS, TILE_SIZE, Direction } from '../types.js'
+import { TileType, FurnitureType, TILE_SIZE, Direction } from '../types.js'
 import type { TileType as TileTypeVal, OfficeLayout, PlacedFurniture, Seat, FurnitureInstance, FloorColor } from '../types.js'
 import { getCatalogEntry } from './furnitureCatalog.js'
 import { getColorizedSprite } from '../colorize.js'
@@ -210,61 +210,137 @@ const DEFAULT_RIGHT_ROOM_COLOR: FloorColor = { h: 25, s: 45, b: 5, c: 10 }  // w
 const DEFAULT_CARPET_COLOR: FloorColor = { h: 280, s: 40, b: -5, c: 0 }     // purple
 const DEFAULT_DOORWAY_COLOR: FloorColor = { h: 35, s: 25, b: 10, c: 0 }     // tan
 
-/** Create the default office layout matching the current hardcoded office */
+/** Create the default office layout for the web deployment. */
 export function createDefaultLayout(): OfficeLayout {
   const W = TileType.WALL
   const F1 = TileType.FLOOR_1
   const F2 = TileType.FLOOR_2
   const F3 = TileType.FLOOR_3
   const F4 = TileType.FLOOR_4
+  const F5 = TileType.FLOOR_5
+  const F6 = TileType.FLOOR_6
 
+  const cols = 26
+  const rows = 21
   const tiles: TileTypeVal[] = []
   const tileColors: Array<FloorColor | null> = []
 
-  for (let r = 0; r < DEFAULT_ROWS; r++) {
-    for (let c = 0; c < DEFAULT_COLS; c++) {
-      if (r === 0 || r === DEFAULT_ROWS - 1) { tiles.push(W); tileColors.push(null); continue }
-      if (c === 0 || c === DEFAULT_COLS - 1) { tiles.push(W); tileColors.push(null); continue }
-      if (c === 10) {
-        if (r >= 4 && r <= 6) {
-          tiles.push(F4); tileColors.push(DEFAULT_DOORWAY_COLOR)
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const isBorder = r === 0 || r === rows - 1 || c === 0 || c === cols - 1
+      const isUpperDivider = r === 6 && c >= 2 && c <= cols - 3 && !(c >= 11 && c <= 14)
+      const isLowerDivider = r === 13 && c >= 5 && c <= 20 && !(c >= 12 && c <= 13)
+
+      if (isBorder || isUpperDivider || isLowerDivider) {
+        tiles.push(W)
+        tileColors.push(null)
+        continue
+      }
+
+      const isUpperDoor = r === 6 && c >= 11 && c <= 14
+      const isLowerDoor = r === 13 && c >= 12 && c <= 13
+      if (isUpperDoor || isLowerDoor) {
+        tiles.push(F4)
+        tileColors.push(DEFAULT_DOORWAY_COLOR)
+        continue
+      }
+
+      if (r <= 5) {
+        if (c <= 12) {
+          tiles.push(F1)
+          tileColors.push(DEFAULT_LEFT_ROOM_COLOR)
         } else {
-          tiles.push(W); tileColors.push(null)
+          tiles.push(F2)
+          tileColors.push(DEFAULT_RIGHT_ROOM_COLOR)
         }
         continue
       }
-      if (c >= 15 && c <= 18 && r >= 7 && r <= 9) {
-        tiles.push(F3); tileColors.push(DEFAULT_CARPET_COLOR); continue
+
+      if (r <= 12) {
+        if (c >= 8 && c <= 17) {
+          tiles.push(F3)
+          tileColors.push(DEFAULT_CARPET_COLOR)
+        } else if (c <= 12) {
+          tiles.push(F1)
+          tileColors.push(DEFAULT_LEFT_ROOM_COLOR)
+        } else {
+          tiles.push(F2)
+          tileColors.push(DEFAULT_RIGHT_ROOM_COLOR)
+        }
+        continue
       }
-      if (c < 10) {
-        tiles.push(F1); tileColors.push(DEFAULT_LEFT_ROOM_COLOR)
+
+      if (c <= 12) {
+        tiles.push(F5)
+        tileColors.push({ h: 32, s: 26, b: 8, c: 6 })
       } else {
-        tiles.push(F2); tileColors.push(DEFAULT_RIGHT_ROOM_COLOR)
+        tiles.push(F6)
+        tileColors.push({ h: 210, s: 20, b: -8, c: 8 })
       }
     }
   }
 
   const furniture: PlacedFurniture[] = [
-    { uid: 'desk-left', type: FurnitureType.DESK, col: 4, row: 3 },
-    { uid: 'desk-right', type: FurnitureType.DESK, col: 13, row: 3 },
-    { uid: 'bookshelf-1', type: FurnitureType.BOOKSHELF, col: 1, row: 5 },
-    { uid: 'plant-left', type: FurnitureType.PLANT, col: 1, row: 1 },
-    { uid: 'cooler-1', type: FurnitureType.COOLER, col: 17, row: 7 },
-    { uid: 'plant-right', type: FurnitureType.PLANT, col: 18, row: 1 },
-    { uid: 'whiteboard-1', type: FurnitureType.WHITEBOARD, col: 15, row: 0 },
-    // Left desk chairs
-    { uid: 'chair-l-top', type: FurnitureType.CHAIR, col: 4, row: 2 },
-    { uid: 'chair-l-bottom', type: FurnitureType.CHAIR, col: 5, row: 5 },
-    { uid: 'chair-l-left', type: FurnitureType.CHAIR, col: 3, row: 4 },
-    { uid: 'chair-l-right', type: FurnitureType.CHAIR, col: 6, row: 3 },
-    // Right desk chairs
-    { uid: 'chair-r-top', type: FurnitureType.CHAIR, col: 13, row: 2 },
-    { uid: 'chair-r-bottom', type: FurnitureType.CHAIR, col: 14, row: 5 },
-    { uid: 'chair-r-left', type: FurnitureType.CHAIR, col: 12, row: 4 },
-    { uid: 'chair-r-right', type: FurnitureType.CHAIR, col: 15, row: 3 },
+    { uid: 'whiteboard-tl', type: FurnitureType.WHITEBOARD, col: 3, row: 1 },
+    { uid: 'whiteboard-tr', type: FurnitureType.WHITEBOARD, col: 18, row: 1 },
+    { uid: 'whiteboard-mid', type: FurnitureType.WHITEBOARD, col: 11, row: 7 },
+    { uid: 'whiteboard-bottom', type: FurnitureType.WHITEBOARD, col: 11, row: 15 },
+
+    { uid: 'bookshelf-l1', type: FurnitureType.BOOKSHELF, col: 1, row: 2 },
+    { uid: 'bookshelf-l2', type: FurnitureType.BOOKSHELF, col: 1, row: 4 },
+    { uid: 'bookshelf-r1', type: FurnitureType.BOOKSHELF, col: 24, row: 2 },
+    { uid: 'bookshelf-r2', type: FurnitureType.BOOKSHELF, col: 24, row: 4 },
+    { uid: 'bookshelf-b1', type: FurnitureType.BOOKSHELF, col: 1, row: 15 },
+    { uid: 'bookshelf-b2', type: FurnitureType.BOOKSHELF, col: 24, row: 15 },
+
+    { uid: 'cooler-left', type: FurnitureType.COOLER, col: 2, row: 8 },
+    { uid: 'cooler-right', type: FurnitureType.COOLER, col: 23, row: 8 },
+
+    { uid: 'plant-tl', type: FurnitureType.PLANT, col: 2, row: 1 },
+    { uid: 'plant-tr', type: FurnitureType.PLANT, col: 23, row: 1 },
+    { uid: 'plant-mid-l', type: FurnitureType.PLANT, col: 9, row: 10 },
+    { uid: 'plant-mid-r', type: FurnitureType.PLANT, col: 16, row: 10 },
+    { uid: 'plant-bl', type: FurnitureType.PLANT, col: 2, row: 18 },
+    { uid: 'plant-br', type: FurnitureType.PLANT, col: 23, row: 18 },
+
+    { uid: 'desk-tl-1', type: FurnitureType.DESK, col: 4, row: 2 },
+    { uid: 'desk-tl-2', type: FurnitureType.DESK, col: 8, row: 2 },
+    { uid: 'desk-tr-1', type: FurnitureType.DESK, col: 16, row: 2 },
+    { uid: 'desk-tr-2', type: FurnitureType.DESK, col: 20, row: 2 },
+    { uid: 'desk-mid-1', type: FurnitureType.DESK, col: 9, row: 8 },
+    { uid: 'desk-mid-2', type: FurnitureType.DESK, col: 14, row: 8 },
+    { uid: 'desk-bl-1', type: FurnitureType.DESK, col: 5, row: 15 },
+    { uid: 'desk-bl-2', type: FurnitureType.DESK, col: 9, row: 15 },
+    { uid: 'desk-br-1', type: FurnitureType.DESK, col: 15, row: 15 },
+    { uid: 'desk-br-2', type: FurnitureType.DESK, col: 19, row: 15 },
+
+    { uid: 'chair-tl-1-top', type: FurnitureType.CHAIR, col: 4, row: 1 },
+    { uid: 'chair-tl-1-bottom', type: FurnitureType.CHAIR, col: 5, row: 4 },
+    { uid: 'chair-tl-2-top', type: FurnitureType.CHAIR, col: 8, row: 1 },
+    { uid: 'chair-tl-2-bottom', type: FurnitureType.CHAIR, col: 9, row: 4 },
+
+    { uid: 'chair-tr-1-top', type: FurnitureType.CHAIR, col: 16, row: 1 },
+    { uid: 'chair-tr-1-bottom', type: FurnitureType.CHAIR, col: 17, row: 4 },
+    { uid: 'chair-tr-2-top', type: FurnitureType.CHAIR, col: 20, row: 1 },
+    { uid: 'chair-tr-2-bottom', type: FurnitureType.CHAIR, col: 21, row: 4 },
+
+    { uid: 'chair-mid-1-top', type: FurnitureType.CHAIR, col: 9, row: 7 },
+    { uid: 'chair-mid-1-bottom', type: FurnitureType.CHAIR, col: 10, row: 10 },
+    { uid: 'chair-mid-2-top', type: FurnitureType.CHAIR, col: 14, row: 7 },
+    { uid: 'chair-mid-2-bottom', type: FurnitureType.CHAIR, col: 15, row: 10 },
+
+    { uid: 'chair-bl-1-top', type: FurnitureType.CHAIR, col: 5, row: 14 },
+    { uid: 'chair-bl-1-bottom', type: FurnitureType.CHAIR, col: 6, row: 17 },
+    { uid: 'chair-bl-2-top', type: FurnitureType.CHAIR, col: 9, row: 14 },
+    { uid: 'chair-bl-2-bottom', type: FurnitureType.CHAIR, col: 10, row: 17 },
+
+    { uid: 'chair-br-1-top', type: FurnitureType.CHAIR, col: 15, row: 14 },
+    { uid: 'chair-br-1-bottom', type: FurnitureType.CHAIR, col: 16, row: 17 },
+    { uid: 'chair-br-2-top', type: FurnitureType.CHAIR, col: 19, row: 14 },
+    { uid: 'chair-br-2-bottom', type: FurnitureType.CHAIR, col: 20, row: 17 },
   ]
 
-  return { version: 1, cols: DEFAULT_COLS, rows: DEFAULT_ROWS, tiles, tileColors, furniture }
+  return { version: 1, cols, rows, tiles, tileColors, furniture }
 }
 
 /** Serialize layout to JSON string */

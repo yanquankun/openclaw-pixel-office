@@ -25,8 +25,14 @@ const projectRoot = __dirname.includes(`${path.sep}dist${path.sep}`)
   ? path.resolve(__dirname, '..', '..', '..')
   : path.resolve(__dirname, '..')
 
-// 活动日志文件路径
-const ACTIVITY_LOG_FILE = path.join(projectRoot, 'activity.log')
+// 默认活动日志文件路径（可被 config 覆盖）
+const DEFAULT_ACTIVITY_LOG_FILE = path.join(projectRoot, 'activity.log')
+
+function getActivityLogFile(): string {
+  const config = readConfig()
+  const configured = config.openclaw?.activityLogPath?.trim()
+  return configured || DEFAULT_ACTIVITY_LOG_FILE
+}
 
 // ── 加载资产 ─────────────────────────────────────────────────
 
@@ -60,16 +66,19 @@ app.get('/api/config', (_req, res) => {
 // 活动日志 API
 app.get('/api/activity-logs', (_req, res) => {
   try {
-    if (!fs.existsSync(ACTIVITY_LOG_FILE)) {
-      return res.json({ success: true, logs: [], date: new Date().toISOString().split('T')[0] })
+    const activityLogFile = getActivityLogFile()
+    if (!fs.existsSync(activityLogFile)) {
+      return res.json({ success: true, logs: [], date: new Date().toISOString().split('T')[0], path: activityLogFile })
     }
-    const content = fs.readFileSync(ACTIVITY_LOG_FILE, 'utf-8')
+    const content = fs.readFileSync(activityLogFile, 'utf-8')
     const lines = content.split('\n').filter(line => line.trim())
     // 取最后 100 条
     const recent = lines.slice(-100)
     const logs = recent.map(line => {
-      // 格式：【YYYY-MM-DD HH:MM:SS】· agentName | action · detail
-      const match = line.match(/^【(.+?)】· (.+?) \| (.+?)(?: · (.+))?$/)
+      const trimmed = line.trim()
+      // 格式：
+      // 【2026/3/10 19:22:02】· Aria·UI | 执行工具 · Read
+      const match = trimmed.match(/^【(.+?)】·\s*(.+?)\s*\|\s*(.+?)(?:\s*·\s*(.+))?$/)
       if (match) {
         return {
           timestamp: match[1] || '',
@@ -78,16 +87,9 @@ app.get('/api/activity-logs', (_req, res) => {
           detail: match[4] || '',
         }
       }
-      // Fallback: split by |
-      const parts = line.split(' | ')
-      return {
-        timestamp: parts[0] || '',
-        agentName: parts[1] || '',
-        action: parts[2] || '',
-        detail: parts[3] || '',
-      }
-    })
-    res.json({ success: true, logs, date: new Date().toISOString().split('T')[0] })
+      return { timestamp: '', agentName: '', action: trimmed, detail: '' }
+    }).filter(item => item.action)
+    res.json({ success: true, logs, date: new Date().toISOString().split('T')[0], path: activityLogFile })
   } catch (err) {
     console.error('[ActivityLogs] Error reading log file:', err)
     res.json({ success: false, error: 'Failed to read logs' })
@@ -114,6 +116,9 @@ app.post('/api/config', (req, res) => {
   agentManager.reinitialize(config.agents)
   // Restart watcher with new agent list
   watcher.stop()
+  if (watcher instanceof OpenClawWatcher) {
+    watcher.configure(config.openclaw.sessionDir, config.openclaw.activityLogPath || DEFAULT_ACTIVITY_LOG_FILE)
+  }
   watcher.start(onAgentEvent, config.agents.map(a => a.id))
 
   console.log(`[Server] Config updated: ${config.agents.length} agents`)
@@ -125,8 +130,14 @@ app.post('/api/config', (req, res) => {
 const webviewDist = path.join(projectRoot, 'dist', 'webview')
 app.use(express.static(webviewDist))
 
-// SPA fallback (Express v5 语法)
-app.get('/{*path}', (_req, res) => {
+// SPA routes: explicit entries first, then final fallback
+app.get('/', (_req, res) => {
+  res.sendFile(path.join(webviewDist, 'index.html'))
+})
+app.get('/config', (_req, res) => {
+  res.sendFile(path.join(webviewDist, 'index.html'))
+})
+app.get('/*rest', (_req, res) => {
   res.sendFile(path.join(webviewDist, 'index.html'))
 })
 
@@ -137,7 +148,7 @@ createWsServer(httpServer, assets, agentManager)
 // ── Watcher (OpenClaw / Mock) ───────────────────────────────
 
 const watcher = appConfig.openclaw?.enabled
-  ? new OpenClawWatcher(appConfig.openclaw.sessionDir)
+  ? new OpenClawWatcher(appConfig.openclaw.sessionDir, appConfig.openclaw.activityLogPath || DEFAULT_ACTIVITY_LOG_FILE)
   : new MockWatcher()
 
 const onAgentEvent = (event: AgentEvent) => {

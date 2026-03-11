@@ -147,22 +147,13 @@ sudo nginx -t && sudo nginx -s reload
 |------|------|------|
 | **启用** | 是否开启 OpenClaw 对接 | 勾选/取消 |
 | **Session 目录** | OpenClaw Agent 的会话文件目录 | `~/.openclaw/agents` |
-| **API 端点** | OpenClaw Gateway 的 HTTP API 地址（可留空） | `http://localhost:8080` |
+| **日志文件路径** | 解析后的活动日志输出文件 | `~/.pixel-agents/activity.log` |
 
-✅ **当前版本已实现 Session JSONL Watcher**：启用后会监听 `~/.openclaw/agents/{main,pm,dev,ui,qa,ops,data}/sessions/*.jsonl`，解析 `toolCall` 更新像素小人状态。
+✅ **当前版本已实现 Session JSONL Watcher**：启用后会监听 `~/.openclaw/agents/{main,pm,dev,ui,qa,ops,data}/sessions/*.jsonl`，解析 `toolCall` 更新像素小人状态，并将前端日志面板使用的内容写入配置的日志文件路径。
 
 隐私说明：
 - 不要把任何 Token/密码/域名写进仓库。
 - 配置会保存在运行机器的 `~/.pixel-agents/config.json`（本地文件），不会提交到 Git。
-
-#### 飞书机器人
-
-配置飞书 Webhook，用于接收 Agent 活动通知。
-
-| 字段 | 说明 | 示例 |
-|------|------|------|
-| **启用** | 是否开启飞书 Webhook | 勾选/取消 |
-| **Webhook URL** | 飞书自定义机器人的 Webhook 地址 | `https://open.feishu.cn/open-apis/bot/v2/hook/xxx` |
 
 ### 保存与重置
 

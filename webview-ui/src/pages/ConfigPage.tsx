@@ -332,7 +332,7 @@ export function ConfigPage() {
             />
             <span>启用 OpenClaw 对接</span>
           </div>
-          <div>
+          <div style={{ marginBottom: 8 }}>
             <span style={labelStyle}>Session 目录</span>
             <input
               style={{ ...inputStyle, marginTop: 4 }}
@@ -341,6 +341,18 @@ export function ConfigPage() {
                 setConfig({ ...config, openclaw: { ...config.openclaw, sessionDir: e.target.value } })
               }
               placeholder="如：~/.openclaw/agents"
+              disabled={!config.openclaw.enabled}
+            />
+          </div>
+          <div>
+            <span style={labelStyle}>日志文件路径</span>
+            <input
+              style={{ ...inputStyle, marginTop: 4 }}
+              value={config.openclaw.activityLogPath}
+              onChange={e =>
+                setConfig({ ...config, openclaw: { ...config.openclaw, activityLogPath: e.target.value } })
+              }
+              placeholder="如：~/.pixel-agents/activity.log"
               disabled={!config.openclaw.enabled}
             />
           </div>

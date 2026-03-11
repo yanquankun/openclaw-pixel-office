@@ -133,6 +133,8 @@ function App() {
   const containerRef = useRef<HTMLDivElement>(null)
 
   const [editorTickForKeyboard, setEditorTickForKeyboard] = useState(0)
+  const officeState = getOfficeState()
+
   useEditorKeyboard(
     editor.isEditMode,
     editorState,
@@ -145,15 +147,18 @@ function App() {
     editor.handleToggleEditMode,
   )
 
-  const handleCloseAgent = useCallback((_id: number) => {
-    // 固定角色模式: 不可关闭
-  }, [])
+  const handleCloseAgent = useCallback((id: number) => {
+    if (officeState.selectedAgentId === id) {
+      officeState.selectedAgentId = null
+    }
+    if (officeState.cameraFollowId === id) {
+      officeState.cameraFollowId = null
+    }
+  }, [officeState])
 
   const handleClick = useCallback((_agentId: number) => {
     // 固定角色模式: 点击选中
   }, [])
-
-  const officeState = getOfficeState()
 
   // Force dependency on editorTickForKeyboard to propagate keyboard-triggered re-renders
   void editorTickForKeyboard

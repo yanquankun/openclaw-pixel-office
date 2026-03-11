@@ -26,27 +26,11 @@ import type { Watcher, AgentEvent } from './types.js'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-// 活动日志文件路径（与 server/index.ts 一致）
+// 默认活动日志文件路径（与 server/index.ts 一致）
 const projectRoot = __dirname.includes(`${path.sep}dist${path.sep}`)
   ? path.resolve(__dirname, '..', '..', '..')
   : path.resolve(__dirname, '..')
-const ACTIVITY_LOG_FILE = path.join(projectRoot, 'activity.log')
-
-/** 记录活动日志（格式参考 opc-office 项目） */
-function logActivity(agentName: string, action: string, detail?: string): void {
-  try {
-    const now = new Date()
-    const timestamp = now.toLocaleString('zh-CN', { hour12: false })
-    // 格式：【时间】· 代理名称 | 行为
-    const line = `【${timestamp}】· ${agentName} | ${action}${detail ? ` · ${detail}` : ''}\n`
-    if (!fs.existsSync(ACTIVITY_LOG_FILE)) {
-      fs.writeFileSync(ACTIVITY_LOG_FILE, '', 'utf-8')
-    }
-    fs.appendFileSync(ACTIVITY_LOG_FILE, line, 'utf-8')
-  } catch (err) {
-    console.error('[OpenClawWatcher] Failed to write activity log:', err)
-  }
-}
+const DEFAULT_ACTIVITY_LOG_FILE = path.join(projectRoot, 'activity.log')
 
 /** OpenClaw 角色名到 Agent ID 的映射 */
 const ROLE_TO_AGENT_ID: Record<string, number> = {
@@ -96,22 +80,47 @@ const TOOL_NAME_MAP: Record<string, string> = {
 
 export class OpenClawWatcher implements Watcher {
   private sessionDir: string
+  private activityLogFile: string
   private watchers: fs.FSWatcher[] = []
   private pollTimer: ReturnType<typeof setInterval> | null = null
   private callback: ((event: AgentEvent) => void) | null = null
   private fileOffsets = new Map<string, number>()
   private allowedAgentIds: Set<number> | null = null
 
-  constructor(sessionDir?: string) {
+  constructor(sessionDir?: string, activityLogFile?: string) {
     // 默认路径，根据实际 OpenClaw 部署调整
     this.sessionDir = sessionDir ?? path.join(
       process.env['HOME'] ?? '/root',
       '.openclaw',
       'agents',
     )
+    this.activityLogFile = activityLogFile || DEFAULT_ACTIVITY_LOG_FILE
+  }
+
+  configure(sessionDir?: string, activityLogFile?: string): void {
+    this.sessionDir = sessionDir ?? this.sessionDir
+    this.activityLogFile = activityLogFile || this.activityLogFile
   }
 
   private idleTimers = new Map<number, ReturnType<typeof setTimeout>>()
+
+  private logActivity(agentName: string, action: string, detail?: string): void {
+    try {
+      const now = new Date()
+      const timestamp = now.toLocaleString('zh-CN', { hour12: false })
+      const line = `【${timestamp}】· ${agentName} | ${action}${detail ? ` · ${detail}` : ''}\n`
+      const dir = path.dirname(this.activityLogFile)
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true })
+      }
+      if (!fs.existsSync(this.activityLogFile)) {
+        fs.writeFileSync(this.activityLogFile, '', 'utf-8')
+      }
+      fs.appendFileSync(this.activityLogFile, line, 'utf-8')
+    } catch (err) {
+      console.error('[OpenClawWatcher] Failed to write activity log:', err)
+    }
+  }
 
   start(callback: (event: AgentEvent) => void, agentIds?: number[]): void {
     this.callback = callback
@@ -256,7 +265,7 @@ export class OpenClawWatcher implements Watcher {
         // 记录活动日志
         const roleName = AGENT_ID_TO_ROLE[agentId] || `agent-${agentId}`
         const displayName = ROLE_TO_DISPLAY_NAME[roleName] || roleName
-        logActivity(displayName, '执行工具', toolName)
+        this.logActivity(displayName, '执行工具', toolName)
 
         // Debounced idle: mark idle if no further toolCall within TTL
         const prev = this.idleTimers.get(agentId)
@@ -264,7 +273,7 @@ export class OpenClawWatcher implements Watcher {
         const t = setTimeout(() => {
           if (this.callback) {
             this.callback({ agentId, type: 'idle' })
-            logActivity(displayName, '任务完成', '进入待命状态')
+            this.logActivity(displayName, '任务完成', '进入待命状态')
           }
         }, 22000)
         this.idleTimers.set(agentId, t)

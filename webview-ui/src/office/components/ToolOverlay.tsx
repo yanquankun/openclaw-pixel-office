@@ -74,7 +74,6 @@ export function ToolOverlay({
   const deviceOffsetY = Math.floor((canvasH - mapH) / 2) + Math.round(panRef.current.y)
 
   const selectedId = officeState.selectedAgentId
-  const hoveredId = officeState.hoveredAgentId
 
   // All character IDs
   const allIds = [...agents, ...subagentCharacters.map((s) => s.id)]
@@ -86,11 +85,10 @@ export function ToolOverlay({
         if (!ch) return null
 
         const isSelected = selectedId === id
-        const isHovered = hoveredId === id
         const isSub = ch.isSubagent
 
-        // Only show for hovered or selected agents
-        if (!isSelected && !isHovered) return null
+        // 仅在选中时显示浮层；hover 不再额外弹出头顶卡片，避免和常驻名牌冲突。
+        if (!isSelected) return null
 
         // Position above character
         const sittingOffset = ch.state === CharacterState.TYPE ? CHARACTER_SITTING_OFFSET_PX : 0
@@ -200,7 +198,7 @@ export function ToolOverlay({
                     e.stopPropagation()
                     onCloseAgent(id)
                   }}
-                  title="Close agent"
+                  title="关闭名牌"
                   style={{
                     background: 'none',
                     border: 'none',

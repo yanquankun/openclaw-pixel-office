@@ -12,7 +12,8 @@ export interface AgentConfig {
 
 export interface OpenClawSettings {
   enabled: boolean
-  sessionDir: string    // 如 ~/.openclaw/agents
+  sessionDir: string      // 如 ~/.openclaw/agents
+  activityLogPath: string // 如 ~/.pixel-agents/activity.log
 }
 
 export interface AppConfig {
@@ -37,6 +38,7 @@ export function createDefaultConfig(): AppConfig {
     openclaw: {
       enabled: false,
       sessionDir: '',
+      activityLogPath: '',
     },
   }
 }

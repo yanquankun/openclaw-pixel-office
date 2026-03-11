@@ -177,24 +177,25 @@ export function renderScene(
       },
     })
 
-    // 任务名称标签（显示在人物头上）
-    if (ch.toolName && ch.isActive) {
-      const taskDrawX = drawX
-      const taskDrawY = drawY - cached.height - 8
-      const taskText = ch.toolName
+    // 头顶名牌：始终显示人物名称，位于人物头顶正中稍上方
+    // 不再随 hover 切换文案，也不再回退为固定占位文案。
+    const labelText = ch.displayName || ch.folderName || `Agent ${ch.id}`
+    const labelDrawX = Math.round(offsetX + ch.x * zoom)
+    const labelDrawY = Math.round(drawY - Math.max(6, zoom * 4))
+    if (labelText) {
+      const finalText = labelText.length > 14 ? labelText.slice(0, 14) + '...' : labelText
       drawables.push({
-        zY: charZY - 1, // 在角色前面渲染
+        zY: charZY - 1,
         draw: (c) => {
           c.save()
           c.font = '12px "FS Pixel Sans", monospace'
-          c.fillStyle = '#ffd700'
-          c.strokeStyle = '#000'
-          c.lineWidth = 3
           c.textAlign = 'center'
           c.textBaseline = 'bottom'
-          const displayText = taskText.length > 12 ? taskText.slice(0, 12) + '...' : taskText
-          c.strokeText(displayText, taskDrawX, taskDrawY)
-          c.fillText(displayText, taskDrawX, taskDrawY)
+          c.lineWidth = 3
+          c.strokeStyle = '#000'
+          c.fillStyle = '#ffd700'
+          c.strokeText(finalText, labelDrawX, labelDrawY)
+          c.fillText(finalText, labelDrawX, labelDrawY)
           c.restore()
         },
       })

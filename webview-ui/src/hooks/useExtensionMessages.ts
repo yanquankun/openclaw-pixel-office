@@ -105,6 +105,8 @@ export function useExtensionMessages(
         // Add buffered agents now that layout (and seats) are correct
         for (const p of pendingAgents) {
           os.addAgent(p.id, p.palette, p.hueShift, p.seatId, true, p.folderName)
+          const ch = os.characters.get(p.id)
+          if (ch) ch.displayName = p.folderName || `Agent ${p.id}`
         }
         pendingAgents = []
         layoutReadyRef.current = true
@@ -156,6 +158,8 @@ export function useExtensionMessages(
           for (const id of incoming) {
             const m = meta[id]
             os.addAgent(id, m?.palette, m?.hueShift, m?.seatId, true, folderNames[id])
+            const ch = os.characters.get(id)
+            if (ch) ch.displayName = folderNames[id] || `Agent ${id}`
           }
           if (os.characters.size > 0) {
             saveAgentSeats(os)
